@@ -1,5 +1,65 @@
 # Daily Development Log
 
+## Day 2 — 28 November 2026
+
+**Project:** Intelligent Battery Management System (BMS) with Advanced Fault Diagnosis and Adaptive Protection for Electric Mobility  
+**Platform:** MATLAB Simulink (R2026b)  
+**Battery Configuration:** 4S1P LiFePO₄ battery pack (15 Ah)  
+**Date:** 28 November 2026
+
+---
+
+### Work Completed Today
+
+#### 1. Model Architecture Framing & Subsystem Area Annotations
+- Enforced clean Model-Based Design (MBD) standards across all model hierarchy levels by introducing designated **Area Annotations**:
+  - **Top-Level BMS System Boundary:** Enclosed the complete top-level simulation architecture (`Battery Plant`, `Sensor Model`, `BMS Controller`, `Protection Sys.`, `Monitoring`, and dynamic excitation blocks) within an annotated **`BMS`** visual boundary.
+  - **Battery Plant Subsystem:** Added dedicated **`battery_plant`** area annotation framing the discrete Coulomb-counting integrator and saturation pipeline.
+  - **Sensor Model Subsystem:** Added dedicated **`sensor_model`** area annotation framing physical sensing inputs and current offset injection.
+  - **Monitoring Subsystem:** Added dedicated **`Monitoring`** area annotation framing real-time diagnostic telemetry display blocks.
+- Enhanced overall model modularity, visual clarity, and presentation quality for hardware deployment and technical reviews.
+
+#### 2. Model Baseline Verification
+- Verified discrete solver parameters ($T_s = 1\text{ s}$, discrete fixed-step solver) and signal routing across all subsystem boundaries.
+- Re-verified signal propagation from dynamic load profile $\rightarrow$ `Battery Plant` $\rightarrow$ `Sensor Model` $\rightarrow$ `BMS Controller` $\rightarrow$ `Protection Sys.` $\rightarrow$ `Monitoring`.
+
+---
+
+### Current Model Status
+
+| Subsystem / Feature | Status | Implementation Details |
+|:---|:---:|:---|
+| **Simulink Project Setup** | ✅ Completed | Fixed-step discrete solver ($T_s = 1\text{ s}$), top-level architecture |
+| **Model Framing & Annotations** | ✅ Completed | System-wide area annotations (`BMS`, `battery_plant`, `sensor_model`, `Monitoring`) |
+| **Battery Plant SOC Model** | ✅ Completed | 4S1P LiFePO₄ pack model with discrete Coulomb counting |
+| **Constant-Current SOC Validation** | ✅ Completed | 1 A discharge over 3600 s verified (80% → 73.33%) |
+| **Variable-Current Profile Setup** | ✅ Completed | Piecewise step profile (1 A, 3 A, 5 A, 2 A) |
+| **Fault Detection Logic** | ✅ Completed | UVP (2.5 V), OVP (3.65 V), OCP (2 A), OTP (60 °C) |
+| **Protection System OR Logic** | ✅ Completed | 4-input Logical OR generating unified `Protection_Trip` |
+| **Protection-Trip Monitoring** | ✅ Completed | Top-level visual monitoring display block |
+| **Monitoring Subsystem Integration**| ✅ Completed | Display blocks for SOC, Current, Voltage, Temp, Trip |
+| **Sensor Offset Error Model** | 🟡 Initial Model | +0.05 A measurement offset implemented |
+| **Adaptive Protection** | ⏳ Pending | Dynamic safety derating & adaptive thresholds |
+| **Advanced Fault Diagnosis** | ⏳ Pending | Model-based & neural-network diagnostic algorithms |
+
+---
+
+### Next Planned Work
+
+1. Complete dynamic drive-cycle simulation runs and evaluate SOC degradation under variable step current loads.
+2. Inject fault conditions systematically into the model (undervoltage, overvoltage, overcurrent, overtemperature) to record Protection Trip trigger latency.
+3. Advance Sensor Model with realistic noise, quantization, and temperature-dependent drift.
+4. Begin design of cell balancing algorithms (passive shunting vs. active balancing).
+5. Lay groundwork for Extended Kalman Filter (EKF) and neural network-based SOC/SOH estimators.
+
+---
+
+### Short Summary (Daily Progress Log)
+> Standardized model hierarchy and visual organization across the entire Simulink project by implementing structured Area Annotations for the top-level `BMS` system, `battery_plant`, `sensor_model`, and `Monitoring` subsystems. Verified signal flow integrity across all functional blocks in preparation for multi-condition fault injection and advanced sensor modeling.
+
+---
+---
+
 ## Day 1 — 26 November 2026
 
 **Project:** Intelligent Battery Management System (BMS) with Advanced Fault Diagnosis and Adaptive Protection for Electric Mobility  
@@ -9,7 +69,7 @@
 
 ---
 
-### Work Completed Today
+### Work Completed
 
 #### 1. Battery Plant – SOC Modeling
 - Developed the battery State of Charge (SOC) calculation model using Coulomb counting.
@@ -65,49 +125,3 @@
   - Protection Trip (`Protection_Trip`)
 - Connected dedicated **Display blocks** to monitor all five critical parameters.
 - Fully integrated the **BMS Controller** and **Protection System** with the top-level system model.
-
----
-
-### Current Model Status
-
-| Subsystem / Feature | Status | Implementation Details |
-|:---|:---:|:---|
-| **Simulink Project Setup** | ✅ Completed | Fixed-step discrete solver ($T_s = 1\text{ s}$), top-level architecture |
-| **Battery Plant SOC Model** | ✅ Completed | 4S1P LiFePO₄ pack model with discrete Coulomb counting |
-| **Constant-Current SOC Validation** | ✅ Completed | 1 A discharge over 3600 s verified (80% → 73.33%) |
-| **Variable-Current Profile Setup** | ✅ Completed | Piecewise step profile (1 A, 3 A, 5 A, 2 A) |
-| **Fault Detection Logic** | ✅ Completed | UVP (2.5 V), OVP (3.65 V), OCP (2 A), OTP (60 °C) |
-| **Subsystem Organization** | ✅ Completed | Rectangular visual annotation blocks for fault modules |
-| **Protection System OR Logic** | ✅ Completed | 4-input Logical OR generating unified `Protection_Trip` |
-| **Protection-Trip Monitoring** | ✅ Completed | Top-level visual monitoring display block |
-| **Monitoring Subsystem Integration**| ✅ Completed | Display blocks for SOC, Current, Voltage, Temp, Trip |
-| **Sensor Offset Error Model** | 🟡 Initial Model | +0.05 A measurement offset implemented |
-| **Adaptive Protection** | ⏳ Pending | Dynamic safety derating & adaptive thresholds |
-| **Advanced Fault Diagnosis** | ⏳ Pending | Model-based & neural-network diagnostic algorithms |
-
----
-
-### Key Learning Outcomes
-
-- Understood the complete Simulink subsystem architecture for an automotive/industrial BMS.
-- Learned how Coulomb counting estimates SOC from current measurements.
-- Understood the mathematical relationship between battery current, capacity, sample time, and SOC variation.
-- Learned how Step blocks and Sum blocks generate piecewise variable load profiles.
-- Understood the purpose of sensor offset/error modeling.
-- Mastered threshold-based fault detection using logical comparison and relational operator blocks.
-- Learned how to design safety shutdown logic using unified logical OR protection structures.
-
----
-
-### Next Planned Work
-
-1. Complete and test the variable-current simulation under extended dynamic drive profiles.
-2. Verify each fault condition individually by systematically injecting test input values (voltage, current, temperature).
-3. Validate the `Protection_Trip` output response for each fault scenario.
-4. Continue developing remaining BMS functionality, including improved sensor modeling (noise, drift) and adaptive protection logic.
-5. Progress toward cell balancing and advanced neural/model-based fault diagnosis.
-
----
-
-### Short Summary (Daily Progress Log)
-> Today, the SOC model of the 4S LiFePO₄ battery pack was developed and validated using Coulomb counting. A constant-current discharge simulation was performed to verify SOC behavior, followed by the setup of a variable-current load profile using Step blocks. The BMS Controller was developed with cell undervoltage, cell overvoltage, overcurrent, and overtemperature detection logic. These fault signals were integrated into the Protection System using OR logic to generate a unified Protection Trip signal. The model was also organized using visual subsystem annotations, and the SOC, pack current, cell voltage, temperature, and protection-trip signals were integrated into the Monitoring subsystem.
